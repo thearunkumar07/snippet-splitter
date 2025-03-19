@@ -21,8 +21,12 @@ const OutputPanel = ({ compiledCode }: OutputPanelProps) => {
         
         // Forward console logs from iframe to parent window
         if (iframe.contentWindow) {
-          const originalConsole = iframe.contentWindow.console;
-          iframe.contentWindow.console = {
+          // Type assertion to access console on Window
+          const contentWindow = iframe.contentWindow as Window & typeof globalThis;
+          const originalConsole = contentWindow.console;
+          
+          // Define new console with typesafe methods
+          contentWindow.console = {
             ...originalConsole,
             log: (...args: any[]) => {
               originalConsole.log(...args);
@@ -61,7 +65,7 @@ const OutputPanel = ({ compiledCode }: OutputPanelProps) => {
           ref={iframeRef}
           title="Code Output"
           className="w-full h-full border-none"
-          sandbox="allow-scripts allow-popups allow-modals"
+          sandbox="allow-scripts allow-popups allow-modals allow-same-origin"
         />
       </div>
     </motion.div>

@@ -1,13 +1,103 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import CodeEditor from '@/components/CodeEditor';
+import OutputPanel from '@/components/OutputPanel';
+import Header from '@/components/Header';
+import { compileCode, DEFAULT_HTML, DEFAULT_CSS, DEFAULT_JS } from '@/utils/compiler';
+import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
+  const [html, setHtml] = useState(DEFAULT_HTML);
+  const [css, setCss] = useState(DEFAULT_CSS);
+  const [js, setJs] = useState(DEFAULT_JS);
+  const [compiledCode, setCompiledCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Initial compilation
+  useEffect(() => {
+    const initialCode = compileCode({ html, css, js });
+    setCompiledCode(initialCode);
+  }, []);
+
+  const handleRun = () => {
+    setIsLoading(true);
+    
+    // Simulate a small delay for visual feedback
+    setTimeout(() => {
+      try {
+        const code = compileCode({ html, css, js });
+        setCompiledCode(code);
+        toast({
+          title: "Code executed successfully",
+          description: "Your code has been compiled and is running in the output panel.",
+          duration: 3000,
+        });
+      } catch (error) {
+        console.error('Compilation error:', error);
+        toast({
+          title: "Compilation error",
+          description: error instanceof Error ? error.message : "Unknown error occurred",
+          variant: "destructive",
+          duration: 5000,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+  };
+
+  const handleClear = () => {
+    setHtml(DEFAULT_HTML);
+    setCss(DEFAULT_CSS);
+    setJs(DEFAULT_JS);
+    
+    // Recompile with default code
+    const code = compileCode({ 
+      html: DEFAULT_HTML, 
+      css: DEFAULT_CSS, 
+      js: DEFAULT_JS 
+    });
+    setCompiledCode(code);
+    
+    toast({
+      title: "Editor cleared",
+      description: "All code has been reset to default examples.",
+      duration: 3000,
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <motion.div 
+      className="min-h-screen flex flex-col theme-transition"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Header onRun={handleRun} onClear={handleClear} isLoading={isLoading} />
+      
+      <motion.div 
+        className="flex-1 flex flex-col lg:flex-row gap-4 px-4 sm:px-6 pb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <div className="w-full lg:w-1/2 h-[400px] lg:h-[calc(100vh-120px)]">
+          <CodeEditor
+            html={html}
+            css={css}
+            js={js}
+            onHtmlChange={setHtml}
+            onCssChange={setCss}
+            onJsChange={setJs}
+          />
+        </div>
+        
+        <div className="w-full lg:w-1/2 h-[400px] lg:h-[calc(100vh-120px)]">
+          <OutputPanel compiledCode={compiledCode} />
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

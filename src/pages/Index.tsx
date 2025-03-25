@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CodeEditor from '@/components/CodeEditor';
@@ -6,6 +5,7 @@ import OutputPanel from '@/components/OutputPanel';
 import Header from '@/components/Header';
 import { compileCode, DEFAULT_HTML, DEFAULT_CSS, DEFAULT_JS } from '@/utils/compiler';
 import { toast } from '@/components/ui/use-toast';
+import { downloadCodeAsZip } from '@/utils/downloadUtils';
 
 const Index = () => {
   const [html, setHtml] = useState(DEFAULT_HTML);
@@ -67,6 +67,15 @@ const Index = () => {
     });
   };
 
+  const handleDownload = () => {
+    downloadCodeAsZip(html, css, js);
+    toast({
+      title: "Download started",
+      description: "Your code is being downloaded as a zip file.",
+      duration: 3000,
+    });
+  };
+
   return (
     <motion.div 
       className="min-h-screen flex flex-col theme-transition"
@@ -94,7 +103,10 @@ const Index = () => {
         </div>
         
         <div className="w-full lg:w-1/2 h-[400px] lg:h-[calc(100vh-120px)]">
-          <OutputPanel compiledCode={compiledCode} />
+          <OutputPanel 
+            compiledCode={compiledCode} 
+            onDownload={handleDownload}
+          />
         </div>
       </motion.div>
     </motion.div>

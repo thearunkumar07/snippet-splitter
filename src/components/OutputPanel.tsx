@@ -1,12 +1,15 @@
 
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Download } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface OutputPanelProps {
   compiledCode: string;
+  onDownload?: () => void;
 }
 
-const OutputPanel = ({ compiledCode }: OutputPanelProps) => {
+const OutputPanel = ({ compiledCode, onDownload }: OutputPanelProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   useEffect(() => {
@@ -57,8 +60,19 @@ const OutputPanel = ({ compiledCode }: OutputPanelProps) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.3 }}
     >
-      <div className="w-full h-8 bg-editor-tab-inactive dark:bg-editor-tab-inactive border-b border-editor-border flex items-center px-4">
+      <div className="w-full h-8 bg-editor-tab-inactive dark:bg-editor-tab-inactive border-b border-editor-border flex items-center justify-between px-4">
         <span className="text-sm font-medium text-editor-foreground opacity-80">Output</span>
+        {onDownload && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-6 gap-1 text-xs"
+            onClick={onDownload}
+          >
+            <Download size={14} />
+            <span>Download</span>
+          </Button>
+        )}
       </div>
       <div className="w-full h-[calc(100%-32px)]">
         <iframe
